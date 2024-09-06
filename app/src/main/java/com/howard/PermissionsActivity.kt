@@ -1,90 +1,104 @@
 package com.howard
 
 import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 class PermissionsActivity : ComponentActivity() {
-    val viewModel: PermissionsViewModel by viewModels()
-
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-            viewModel.permissionsGranted.value = isGranted
-        }
+    private val viewModel: PermissionsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         setContent {
-            val permissionLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.RequestPermission(),
-                onResult = { isGranted ->
-                    viewModel.permissionsGranted.value = isGranted
-                }
-            )
-            PermissionsApp(viewModel, requestPermissionLauncher)
+            PermissionsRequestScreen()
         }
     }
 }
 
+
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun PermissionsApp(
-    viewModel: PermissionsViewModel,
-    permissionLauncher: ActivityResultLauncher<String>
-) {
-    val showRationale by viewModel.showRationale
-    val permissionsGranted by viewModel.permissionsGranted
+fun PermissionsRequestScreen() {
+    val permissionsList = buildList {
+        addAll(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                listOf(
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                )
+            } else {
+                listOf(
+                    Manifest.permission.BLUETOOTH,
+                    Manifest.permission.BLUETOOTH_ADMIN
+                )
+            }
+        )
+        add(Manifest.permission.ACCESS_FINE_LOCATION)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) add(Manifest.permission.ACTIVITY_RECOGNITION)
+    }
+    val multiplePermissionsState = rememberMultiplePermissionsState(permissionsList)
 
     when {
-        permissionsGranted -> PermissionsGrantedUI()
-        showRationale -> PermissionRationaleUI { permissionLauncher.launch(Manifest.permission.BLUETOOTH_SCAN) }
-        else -> RequestPermissionsUI { permissionLauncher.launch(Manifest.permission.BLUETOOTH_SCAN) }
-    }
-}
+        multiplePermissionsState.allPermissionsGranted -> Text("All permissions granted!")
+        multiplePermissionsState.shouldShowRationale -> PermissionRationaleUI {
+            multiplePermissionsState.launchMultiplePermissionRequest()
+        }
 
-@Composable
-fun PermissionsGrantedUI() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) { Text("Permissions Granted!") }
+        else -> RequestPermissionsUI {
+            multiplePermissionsState.launchMultiplePermissionRequest()
+        }
+    }
 }
 
 @Composable
 fun PermissionRationaleUI(onRequestPermissions: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("You need Bluetooth and Location for full features.")
-        Button(onClick = onRequestPermissions) { Text("Request Permissions") }
+        Text("We need Bluetooth and Location access to connect to nearby devices.")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onRequestPermissions) {
+            Text("Request Permissions")
+        }
     }
 }
 
 @Composable
 fun RequestPermissionsUI(onRequestPermissions: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Grant permissions for Bluetooth and Location.")
-        Button(onClick = onRequestPermissions) { Text("Request Permissions") }
+        Text("Please grant Bluetooth and Location permissions.")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onRequestPermissions) {
+            Text("Grant Permissions")
+        }
     }
 }
