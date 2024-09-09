@@ -23,18 +23,31 @@ import com.google.accompanist.permissions.shouldShowRationale
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PermissionsStatusCard() {
-    val permissionsState = rememberMultiplePermissionsState(
-        permissions = listOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.BODY_SENSORS,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                Manifest.permission.BLUETOOTH_SCAN
-            } else {
-                Manifest.permission.BLUETOOTH
-            }
-        )
+    val userFacingStrings = mapOf(
+        Manifest.permission.ACCESS_FINE_LOCATION to "Location (Fine)",
+        Manifest.permission.ACCESS_COARSE_LOCATION to "Location (Coarse)",
+        Manifest.permission.ACTIVITY_RECOGNITION to "Physical Activity",
+        Manifest.permission.BLUETOOTH_SCAN to "BT Scan (Nearby)",
+        Manifest.permission.BLUETOOTH to "BT"
     )
+
+    val permissionsState = rememberMultiplePermissionsState(
+        permissions = buildList {
+            addAll(
+                listOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) add(Manifest.permission.ACTIVITY_RECOGNITION)
+            add(
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Manifest.permission.BLUETOOTH_SCAN
+                } else {
+                    Manifest.permission.BLUETOOTH
+                }
+            )
+        })
 
     val allTheTimePermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         rememberPermissionState(permission = Manifest.permission.ACCESS_BACKGROUND_LOCATION)
@@ -54,18 +67,16 @@ fun PermissionsStatusCard() {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            PermissionStatusText(0, "Location (Fine)", permissionsState)
-            PermissionStatusText(1, "Location (Coarse)", permissionsState)
-            PermissionStatusText(2, "Physical Activity", permissionsState)
-            PermissionStatusText(3, "Nearby Devices", permissionsState)
+            permissionsState.permissions.forEachIndexed { index, permissionState ->
+                PermissionStatusText(
+                    index = index,
+                    permissionName = userFacingStrings[permissionState.permission] ?: "",
+                    multiplePermissionsState = permissionsState
+                )
+            }
 
             allTheTimePermission?.let {
-                val text = when {
-                    it.status == PermissionStatus.Granted -> "Location Always: Allowed ✔"
-                    it.status.shouldShowRationale -> "Location Always: Denied (Rationale) ❌"
-                    else -> "Location Always: Denied or Not Requested ❌"
-                }
-                Text(text = text, fontSize = 16.sp)
+                PermissionStatusText(status = it.status, permissionName = "Location Always")
             }
         }
     }
@@ -76,12 +87,21 @@ fun PermissionsStatusCard() {
 fun PermissionStatusText(
     index: Int,
     permissionName: String,
-    permissionState: MultiplePermissionsState
+    multiplePermissionsState: MultiplePermissionsState
 ) {
-    val status = permissionState.permissions[index].status
+    val status = multiplePermissionsState.permissions[index].status
+    PermissionStatusText(status, permissionName)
+}
+
+@Composable
+@OptIn(ExperimentalPermissionsApi::class)
+private fun PermissionStatusText(
+    status: PermissionStatus,
+    permissionName: String
+) {
     val text = when {
         status == PermissionStatus.Granted -> "$permissionName: Granted ✔"
-        status.shouldShowRationale -> "$permissionName: Denied (Rationale) ❌"
+        status.shouldShowRationale -> "$permissionName: Denied (Rationale) ⚠️"
         else -> "$permissionName: Denied or Not Requested ❌"
     }
     Text(
