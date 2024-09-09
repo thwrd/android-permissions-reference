@@ -67,6 +67,13 @@ fun PermissionsStatusCard() {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
+            Text(
+                text = "Android ${Build.VERSION.RELEASE} ${Build.VERSION.SDK_INT.versionName} API ${Build.VERSION.SDK_INT}",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
             permissionsState.permissions.forEachIndexed { index, permissionState ->
                 PermissionStatusText(
                     index = index,
@@ -110,3 +117,38 @@ private fun PermissionStatusText(
         modifier = Modifier.padding(bottom = 4.dp)
     )
 }
+
+val Int.versionName: String get() = when (this) {
+        33 -> "Tiramisu"
+        32 -> "Snow Cone"
+        31 -> "Snow Cone"
+        30 -> "R"
+        29 -> "Q"
+        28 -> "Pie"
+        27 -> "Oreo"
+        26 -> "Oreo"
+        25 -> "Nougat"
+        24 -> "Nougat"
+        23 -> "Marshmallow"
+        22 -> "Lollipop"
+        21 -> "Lollipop"
+        20 -> "KitKat Watch"
+        19 -> "KitKat"
+        18 -> "Jelly Bean"
+        17 -> "Jelly Bean"
+        16 -> "Jelly Bean"
+        15 -> "Ice Cream Sandwich"
+        14 -> "Ice Cream Sandwich"
+        13 -> "Honeycomb"
+        12 -> "Honeycomb"
+        11 -> "Honeycomb"
+        10 -> "Gingerbread"
+        9 -> "Gingerbread"
+        8 -> "Froyo"
+        7 -> "Eclair"
+        6 -> "Eclair"
+        5 -> "Eclair"
+        4 -> "Donut"
+        3 -> "Cupcake"
+        else -> "Unknown"
+    }
