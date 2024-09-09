@@ -2,6 +2,7 @@ package com.howard.ui.theme
 
 import android.content.Intent
 import android.provider.Settings
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,13 +24,11 @@ fun HomeTab() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-    ) {
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)    ) {
         Card(
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
@@ -90,5 +89,6 @@ fun HomeTab() {
 
             }
         }
+        PermissionsStatusCard()
     }
 }
