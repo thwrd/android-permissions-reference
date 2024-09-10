@@ -25,7 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.howard.ui.theme.HomeTab
+
+const val HOME = 0
+const val ALL_AT_ONCE = 1
+const val SEQUENTIAL = 2
 
 class PermissionsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +56,7 @@ fun PermissionsRequestScreen() {
             }
         )
         add(Manifest.permission.ACCESS_FINE_LOCATION)
+        add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) add(Manifest.permission.ACTIVITY_RECOGNITION)
     }
     val multiplePermissionsState = rememberMultiplePermissionsState(permissionsList)
@@ -121,19 +125,13 @@ fun TabbedLayout() {
         }
 
         when (selectedTabIndex) {
-            0 -> HomeTab()
-            1 -> PermissionsRequestScreen()
-            2 -> TabContent3()
+            HOME -> HomeTab()
+            ALL_AT_ONCE -> PermissionsRequestScreen()
+            SEQUENTIAL -> RequestPermissionsPage("p", "q") {}
+
+            /*
+            the CTA text for all at once should show, if any should show permission rationale
+             */
         }
     }
-}
-
-@Composable
-fun TabContent2() {
-    Text(text = "Content for Tab 2", modifier = Modifier.fillMaxSize())
-}
-
-@Composable
-fun TabContent3() {
-    Text(text = "Content for Tab 3", modifier = Modifier.fillMaxSize())
 }

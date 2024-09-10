@@ -1,4 +1,4 @@
-package com.howard.ui.theme
+package com.howard
 
 import android.Manifest
 import android.os.Build
@@ -17,18 +17,18 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PermissionsStatusCard() {
     val userFacingStrings = mapOf(
-        Manifest.permission.ACCESS_FINE_LOCATION to "Location (Fine)",
-        Manifest.permission.ACCESS_COARSE_LOCATION to "Location (Coarse)",
+        Manifest.permission.ACCESS_FINE_LOCATION to "Fine Location",
+        Manifest.permission.ACCESS_COARSE_LOCATION to "Coarse Location",
         Manifest.permission.ACTIVITY_RECOGNITION to "Physical Activity",
-        Manifest.permission.BLUETOOTH_SCAN to "BT Scan (Nearby)",
-        Manifest.permission.BLUETOOTH to "BT"
+        Manifest.permission.BLUETOOTH_SCAN to "BT Scan",
+        Manifest.permission.BLUETOOTH to "BT",
+        Manifest.permission.ACCESS_BACKGROUND_LOCATION to "Location Always"
     )
 
     val permissionsState = rememberMultiplePermissionsState(
@@ -36,10 +36,15 @@ fun PermissionsStatusCard() {
             addAll(
                 listOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
                 )
             )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) add(Manifest.permission.ACTIVITY_RECOGNITION)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) addAll(
+                listOf(
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    Manifest.permission.ACTIVITY_RECOGNITION
+                )
+            )
             add(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     Manifest.permission.BLUETOOTH_SCAN
@@ -49,24 +54,12 @@ fun PermissionsStatusCard() {
             )
         })
 
-    val allTheTimePermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        rememberPermissionState(permission = Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-    } else {
-        null
-    }
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier
             .fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "Permissions Status",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
             Text(
                 text = "Android ${Build.VERSION.RELEASE} ${Build.VERSION.SDK_INT.versionName} API ${Build.VERSION.SDK_INT}",
                 fontSize = 16.sp,
@@ -80,10 +73,6 @@ fun PermissionsStatusCard() {
                     permissionName = userFacingStrings[permissionState.permission] ?: "",
                     multiplePermissionsState = permissionsState
                 )
-            }
-
-            allTheTimePermission?.let {
-                PermissionStatusText(status = it.status, permissionName = "Location Always")
             }
         }
     }
@@ -108,8 +97,8 @@ private fun PermissionStatusText(
 ) {
     val text = when {
         status == PermissionStatus.Granted -> "$permissionName: Granted ✔"
-        status.shouldShowRationale -> "$permissionName: Denied (Rationale) ⚠️"
-        else -> "$permissionName: Denied or Not Requested ❌"
+        status.shouldShowRationale -> "$permissionName: Denied (Rationale) ⚠️⚠\uFE0F"
+        else -> "$permissionName: Denied or Not Prompted ❌❓"
     }
     Text(
         text = text,
@@ -118,7 +107,8 @@ private fun PermissionStatusText(
     )
 }
 
-val Int.versionName: String get() = when (this) {
+val Int.versionName: String
+    get() = when (this) {
         33 -> "Tiramisu"
         32 -> "Snow Cone"
         31 -> "Snow Cone"
