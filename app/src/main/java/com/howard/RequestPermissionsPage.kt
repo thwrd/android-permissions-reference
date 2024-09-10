@@ -12,6 +12,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,7 +24,15 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun RequestPermissionsPage(explanation: String, ctaText: String, ctaAction: () -> Unit) {
+fun RequestPermissionsPage(explanation: String, ctaText: String, ctaAction: () -> Unit, initialAction: ()-> Unit = {}) {
+    val shouldDoInitialAction = remember {
+        mutableStateOf(true)
+    }
+    if (shouldDoInitialAction.value) {
+        println("invoking the initial action")
+        initialAction()
+        shouldDoInitialAction.value = false
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -32,7 +42,9 @@ fun RequestPermissionsPage(explanation: String, ctaText: String, ctaAction: () -
         Image(
             painter = painterResource(id = R.drawable.connect),
             contentDescription = "Description of the image",
-            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp))
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
         )
         MockUICard(explanation, ctaText, ctaAction)
     }
