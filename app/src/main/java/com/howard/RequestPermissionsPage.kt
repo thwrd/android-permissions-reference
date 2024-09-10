@@ -35,8 +35,6 @@ fun RequestPermissionsPage(explanation: String, ctaText: String, ctaAction: () -
             modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp))
         )
         MockUICard(explanation, ctaText, ctaAction)
-        PermissionsStatusCard()
-        ResetPermissionsCard()
     }
 }
 

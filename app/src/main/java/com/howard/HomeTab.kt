@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun HomeTab() {
+fun HomeTab(userFacingStrings: Map<String, String>, permissions: List<String>) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -39,7 +39,7 @@ fun HomeTab() {
                 )
             }
         }
-        PermissionsStatusCard()
+        PermissionsStatusCard(userFacingStrings, permissions)
         ResetPermissionsCard()
     }
 }

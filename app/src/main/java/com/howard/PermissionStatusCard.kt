@@ -1,6 +1,5 @@
 package com.howard
 
-import android.Manifest
 import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,39 +20,8 @@ import com.google.accompanist.permissions.shouldShowRationale
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun PermissionsStatusCard() {
-    val userFacingStrings = mapOf(
-        Manifest.permission.ACCESS_FINE_LOCATION to "Fine Location",
-        Manifest.permission.ACCESS_COARSE_LOCATION to "Coarse Location",
-        Manifest.permission.ACTIVITY_RECOGNITION to "Physical Activity",
-        Manifest.permission.BLUETOOTH_SCAN to "BT Scan",
-        Manifest.permission.BLUETOOTH to "BT",
-        Manifest.permission.ACCESS_BACKGROUND_LOCATION to "Location Always"
-    )
-
-    val permissionsState = rememberMultiplePermissionsState(
-        permissions = buildList {
-            addAll(
-                listOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                )
-            )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) addAll(
-                listOf(
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                    Manifest.permission.ACTIVITY_RECOGNITION
-                )
-            )
-            add(
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    Manifest.permission.BLUETOOTH_SCAN
-                } else {
-                    Manifest.permission.BLUETOOTH
-                }
-            )
-        })
-
+fun PermissionsStatusCard(userFacingStrings: Map<String, String>, permissions: List<String>) {
+    val permissionsState = rememberMultiplePermissionsState(permissions = permissions)
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier
