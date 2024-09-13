@@ -11,7 +11,7 @@ class PermissionsViewModel(application: Application) : AndroidViewModel(applicat
         put(Manifest.permission.ACCESS_COARSE_LOCATION, "Coarse Location")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            put(Manifest.permission.BLUETOOTH_SCAN, "BT Scan")
+            put(Manifest.permission.BLUETOOTH_SCAN, "BT Scan") // just need this and connect?
         } else {
             put(Manifest.permission.BLUETOOTH, "BT")
         }
